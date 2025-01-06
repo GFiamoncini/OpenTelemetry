@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  servico-a:
+    build:
+      context: ./serverA  # Caminho para o diretório do Serviço A
+    ports:
+      - "8080:8080"          # Expor a porta 8080 para o Serviço A
+    depends_on:
+      - servico-b            # O Serviço A depende do Serviço B
+    environment:
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans  # Configuração do Zipkin
+
+  servico-b:
+    build:
+      context: ./ServerB  # Caminho para o diretório do Serviço B
+    ports:
+      - "8081:8081"          # Expor a porta 8081 para o Serviço B
+    environment:
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans  # Configuração do Zipkin
+
+  zipkin:
+    image: openzipkin/zipkin:latest  # Imagem do Zipkin
+    ports:
+      - "9411:9411"  # Expor a interface do Zipkin
