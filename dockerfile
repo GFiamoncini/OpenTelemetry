@@ -1,36 +1,39 @@
-# Build stage
+# Etapa base: Definir a imagem base do Go
 FROM golang:1.23 as builder
 
-# Define o diretório de trabalho dentro do container
+# Configurar o diretório de trabalho no contêiner
 WORKDIR /app
 
-# Copia os arquivos de configuração do Go
+# Copiar os arquivos de dependências (mod e sum)
 COPY go.mod go.sum ./
+
+# Baixar as dependências do projeto
 RUN go mod download
 
-# Copia o restante do código-fonte
+# Copiar o restante do código fonte para o diretório de trabalho
 COPY . .
 
-# Usa um argumento para especificar o nome do binário durante a build
+# Argumento para diferenciar os serviços durante o build
 ARG SERVICE_NAME
+
+# Compilar o aplicativo Go, gerando binário com o nome do serviço
 RUN go build -o /app/${SERVICE_NAME} .
 
-# Runtime stage
-FROM debian:bullseye-slim
+# Etapa final: Contêiner para rodar os serviços
+FROM alpine:3.18
 
-# Define o diretório de trabalho
+# Configurar o diretório de trabalho
 WORKDIR /app
 
-# Usa o argumento para copiar o binário correspondente
+# Argumento para especificar o serviço durante o build
 ARG SERVICE_NAME
-COPY --from=builder /app/${SERVICE_NAME} /app/${SERVICE_NAME}
-
-# Expõe a porta com base no serviço
 ARG SERVICE_PORT
+
+# Copiar o binário gerado na etapa de build
+COPY --from=builder /app/${SERVICE_NAME} /app/app
+
+# Expor a porta para o serviço
 EXPOSE ${SERVICE_PORT}
 
-# Define a variável de ambiente do Zipkin
-ENV OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
-
-# Define o comando de execução
-CMD ["/bin/bash", "-c", "./${SERVICE_NAME}"]
+# Comando para executar o serviço
+CMD ["./app"]

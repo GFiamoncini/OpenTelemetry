@@ -3,8 +3,8 @@ version: '3.8'
 services:
   servico-a:
     build:
-      context: ./ServerA  # Caminho para o diretório do Serviço A
-      dockerfile: ../Dockerfile  # Usa o mesmo Dockerfile para ambos
+      context: ./ServerA
+      dockerfile: ../Dockerfile  # Aponta para o Dockerfile único
       args:
         SERVICE_NAME: service-a
         SERVICE_PORT: 8080
@@ -17,8 +17,8 @@ services:
 
   servico-b:
     build:
-      context: ./ServerB  # Caminho para o diretório do Serviço B
-      dockerfile: ../Dockerfile  # Usa o mesmo Dockerfile para ambos
+      context: ./ServerB
+      dockerfile: ../Dockerfile  # Aponta para o Dockerfile único
       args:
         SERVICE_NAME: service-b
         SERVICE_PORT: 8081
