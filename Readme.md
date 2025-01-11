@@ -17,13 +17,13 @@ A estrutura do projeto será semelhante à seguinte:
 │
 ├── /servico-a
 │   ├── main.go
-│   └── Dockerfile
 │
 ├── /servico-b
 │   ├── main.go
 │   └── Dockerfile
 │
 ├── docker-compose.yml
+|__ dockerfile
 └── README.md
 ```
 
