@@ -53,6 +53,7 @@ RUN ls -l /app
 # Etapa final: imagem mais leve (alpine)
 FROM alpine:3.18
 
+#Bypass para compilar caso distro linux for Fedora versão 40+
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
