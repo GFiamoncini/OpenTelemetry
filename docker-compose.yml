@@ -3,23 +3,31 @@ version: '3.8'
 services:
   servico-a:
     build:
-      context: ./serverA  # Caminho para o diretório do Serviço A
+      context: ./ServerA  # Caminho para o diretório do Serviço A
+      dockerfile: ../Dockerfile  # Usa o mesmo Dockerfile para ambos
+      args:
+        SERVICE_NAME: service-a
+        SERVICE_PORT: 8080
     ports:
-      - "8080:8080"          # Expor a porta 8080 para o Serviço A
+      - "8080:8080"
     depends_on:
-      - servico-b            # O Serviço A depende do Serviço B
+      - servico-b
     environment:
-      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans  # Configuração do Zipkin
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
 
   servico-b:
     build:
       context: ./ServerB  # Caminho para o diretório do Serviço B
+      dockerfile: ../Dockerfile  # Usa o mesmo Dockerfile para ambos
+      args:
+        SERVICE_NAME: service-b
+        SERVICE_PORT: 8081
     ports:
-      - "8081:8081"          # Expor a porta 8081 para o Serviço B
+      - "8081:8081"
     environment:
-      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans  # Configuração do Zipkin
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
 
   zipkin:
-    image: openzipkin/zipkin:latest  # Imagem do Zipkin
+    image: openzipkin/zipkin:latest
     ports:
-      - "9411:9411"  # Expor a interface do Zipkin
+      - "9411:9411"
