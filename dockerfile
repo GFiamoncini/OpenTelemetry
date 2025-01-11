@@ -1,69 +1,37 @@
-# Etapa de construção para server-a
-FROM golang:1.23 as server-a-builder
+# Etapa de construção para server-a e server-b
+FROM golang:1.23 as builder
 
 WORKDIR /app
 
 # Copiar go.mod e go.sum para garantir que as dependências sejam baixadas
 COPY go.mod go.sum ./
 
-RUN go mod tidy
-RUN go mod download
-RUN go get go.opentelemetry.io/otel
-RUN go get go.opentelemetry.io/otel/exporters/zipkin
-RUN go get go.opentelemetry.io/otel/sdk/trace
+RUN go mod tidy && go mod download
 
-# Copiar o código fonte de ServerA
+# Instalar as dependências do OpenTelemetry
+RUN go get go.opentelemetry.io/otel && \
+    go get go.opentelemetry.io/otel/exporters/zipkin && \
+    go get go.opentelemetry.io/otel/sdk/trace
+
+# Copiar o código-fonte dos dois servidores
 COPY ./ServerA ./ServerA
-
-# Construir o servidor A para arquitetura amd64 (especificando a plataforma)
-RUN GOARCH=amd64 GOOS=linux go build -o /app/server-a ./ServerA
-
-# Garantir permissões de execução
-RUN chmod +x /app/server-a
-
-# Verificar se o binário foi criado corretamente
-RUN ls -l /app
-
-# Etapa de construção para server-b
-FROM golang:1.23 as server-b-builder
-
-WORKDIR /app
-
-# Copiar go.mod e go.sum para garantir que as dependências sejam baixadas
-COPY go.mod go.sum ./
-
-RUN go mod tidy
-RUN go mod download
-RUN go get go.opentelemetry.io/otel
-RUN go get go.opentelemetry.io/otel/exporters/zipkin
-RUN go get go.opentelemetry.io/otel/sdk/trace
-
-# Copiar o código fonte de ServerB
 COPY ./ServerB ./ServerB
 
-# Construir o servidor B para arquitetura amd64 (especificando a plataforma)
+# Construir ambos os servidores para a arquitetura amd64
+RUN GOARCH=amd64 GOOS=linux go build -o /app/server-a ./ServerA
 RUN GOARCH=amd64 GOOS=linux go build -o /app/server-b ./ServerB
 
-# Garantir permissões de execução
-RUN chmod +x /app/server-b
-
-# Verificar se o binário foi criado corretamente
-RUN ls -l /app
-
-# Etapa final: imagem mais leve (alpine)
+# Etapa final: imagem mais leve (Alpine)
 FROM alpine:3.18
 
-#Bypass para compilar caso distro linux for Fedora versão 40+
+# Instalar dependências necessárias (libc6-compat para compatibilidade com binários)
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# Copiar binários do server-a e server-b
-COPY --from=server-a-builder /app/server-a /app/server-a
-COPY --from=server-b-builder /app/server-b /app/server-b
-
-# Verificar se os binários estão sendo copiados corretamente para a imagem final
-RUN ls -l /app
+# Copiar binários dos servidores
+COPY --from=builder /app/server-a /app/server-a
+COPY --from=builder /app/server-b /app/server-b
 
 # Garantir permissões de execução
 RUN chmod +x /app/server-a /app/server-b
