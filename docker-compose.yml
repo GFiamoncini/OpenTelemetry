@@ -1,33 +1,38 @@
 version: '3.8'
 
 services:
-  servico-a:
+  server-a:
     build:
-      context: ./ServerA
-      dockerfile: ../Dockerfile  # Aponta para o Dockerfile único
-      args:
-        SERVICE_NAME: service-a
-        SERVICE_PORT: 8080
+      context: .
+      dockerfile: Dockerfile
+    image: opentelemetry-server-a:latest
     ports:
       - "8080:8080"
-    depends_on:
-      - servico-b
     environment:
+      - SERVICE_NAME=server-a
       - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
 
-  servico-b:
+  server-b:
     build:
-      context: ./ServerB
-      dockerfile: ../Dockerfile  # Aponta para o Dockerfile único
-      args:
-        SERVICE_NAME: service-b
-        SERVICE_PORT: 8081
+      context: .
+      dockerfile: Dockerfile
+    image: opentelemetry-server-b:latest
     ports:
       - "8081:8081"
     environment:
+      - SERVICE_NAME=server-b
       - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
 
   zipkin:
     image: openzipkin/zipkin:latest
+    container_name: zipkin
     ports:
       - "9411:9411"
+
+networks:
+  default:
+    name: opentelemetry-network

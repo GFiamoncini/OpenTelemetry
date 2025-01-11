@@ -23,7 +23,7 @@ type WeatherResponse struct {
 
 func main() {
 	// Configure Zipkin exporter
-	exporter, err := zipkin.New("http://localhost:9411/api/v2/spans")
+	exporter, err := zipkin.New("http://zipkin:9411/api/v2/spans")
 	if err != nil {
 		log.Fatalf("Falha ao criar Zipkin : %v", err)
 	}

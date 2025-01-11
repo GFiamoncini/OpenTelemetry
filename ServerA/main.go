@@ -20,7 +20,7 @@ type CEPRequest struct {
 
 func main() {
 	// Configure Zipkin exporter
-	exporter, err := zipkin.New("http://localhost:9411/api/v2/spans")
+	exporter, err := zipkin.New("http://zipkin:9411/api/v2/spans")
 	if err != nil {
 		log.Fatalf("Failed to create Zipkin exporter: %v", err)
 	}
@@ -79,7 +79,7 @@ func forwardToServiceB(ctx context.Context, cep string) ([]byte, error) {
 
 	log.Printf("Span criado em Serviço A: forwardToServiceB com CEP %s", cep)
 
-	url := fmt.Sprintf("http://localhost:8081/weather?cep=%s", cep)
+	url := fmt.Sprintf("http://server-b:8081/weather?cep=%s", cep)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
