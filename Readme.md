@@ -72,7 +72,7 @@ Este request irá:
 
 - Você verá os logs do **Serviço A**, **Serviço B** e **Zipkin**. Verifique se os spans estão sendo enviados corretamente para o Zipkin, e os logs de cada serviço.
 
-### Passo 7: Parando os Contêineres
+### Passo 5: Parando os Contêineres
 
 Quando terminar de testar, você pode parar os contêineres com o comando:
 
